@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand text-danger fw-bold" href="#">tailwebs.</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Subject</th>
+            <th>Mark</th>
+            <th>Action</th>
+            
+          </tr>
+        </thead>
+        <tbody id="studentTable">
+          {% for student in students %}
+          <tr>
+            <td>
+                <span style="display:inline-flex;justify-content:center;align-items:center;width:20px;height:20px;border-radius:50%;background-color:#007bff;color:white;font-weight:bold;margin-right:8px;">
+                    {{ student.name|first|upper }}
+                </span>
+                {{ student.name }}
+            </td>
+            <td>
+                {{ student.subject }}
+            </td>
+            <td contenteditable="true">
+                {{ student.marks }}
+            </td>
+            <td>
+            <div class="dropdown">
+      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
+      <ul class="dropdown-menu">
+        <li>
+          <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModal{{ student.id }}">
+            Edit
+          </button>
+        </li>
+        <li>
+          <form action="{% url 'delete_student' student.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item text-danger">Delete</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    <div class="modal fade" id="editModal{{ student.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content rounded-3">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Student</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form action="{% url 'update_marks' student.id %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="student_id" value="{{ student.id }}">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" name="name" value="{{ student.name }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Subject</label>
+                <input type="text" class="form-control" name="subject" value="{{ student.subject }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Marks</label>
+                <input type="number" class="form-control" name="marks" value="{{ student.marks }}" required>
+              </div>
+              <button type="submit" name="edit" value="edit" class="btn btn-primary">Update</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>
+{% endfor %}
+        </tbody>
+      </table>
+
+      <button class="btn btn-dark mt-3" data-bs-toggle="modal" data-bs-target="#addStudentModal">Add</button>
+    </div>
+  </div>
+  {% if messages %}
+  <div>
+    {% for message in messages %}
+      <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+</div>
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-3">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Student</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'add_student' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Subject</label>
+            <input type="text" class="form-control" name="subject" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mark</label>
+            <input type="number" class="form-control" name="marks" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
